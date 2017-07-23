@@ -17,10 +17,10 @@ const Maze = ({maze}) => {
 
   let getCellStyles = (e) => {
     return {
-      borderTopWidth: e[0] + 'px',
-      borderRightWidth: e[1] + 'px',
-      borderBottomWidth: e[2] + 'px',
-      borderLeftWidth: e[3] + 'px',
+      borderTopWidth: ((e.top) ? 1 : 0) + 'px',
+      borderRightWidth: ((e.right) ? 1 : 0) + 'px',
+      borderBottomWidth:((e.bottom) ? 1 : 0) + 'px',
+      borderLeftWidth: ((e.left) ? 1 : 0) + 'px',
     }
   };
 

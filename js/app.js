@@ -7,24 +7,35 @@ class Labyrinth extends React.Component {
       position: 'relative',
       margin: '5vh auto',
       height: '60vh',
-      width: '80vh',
+      width: '60vw',
       border: '0px solid lightgrey'
     };
 
     this.state = {
       posLeft: 0,
       posTop: 0,
-      dotSize: 10
+      dotSize: 10,
+      bgColor: '#ff4848',
+      maze: newMaze(10,10)
     };
 
     this.step = 10;
 
-    this.maze = newMaze(10,10);
+    this.finish = {
+      posLeft: 90,
+      posTop: 90,
+      dotSize: 10,
+      bgColor: '#baffb4'
+    }
    
   }
 
   componentDidMount() {
     document.onkeydown = this.checkKey.bind(this);
+  }
+
+  componentDidUpdate() {
+    this.checkIfWon()
   }
 
   checkKey(e) {
@@ -73,27 +84,38 @@ class Labyrinth extends React.Component {
   isFreeSpace({top, left, direction}) {
     let y = this.state.posTop/10;
     let x = this.state.posLeft/10;
-    let currentCell = this.maze[y][x];
+    let currentCell = this.state.maze[y][x];
 
-    if (currentCell[0] == 1 && direction == 'top') {
+    if (currentCell.top == true && direction == 'top') {
       return false;
-    } else if (currentCell[1] == 1 && direction == 'right') {
+    } else if (currentCell.right == true && direction == 'right') {
       return false;
-    } else if (currentCell[2] == 1 && direction == 'bottom') {
+    } else if (currentCell.bottom == true && direction == 'bottom') {
       return false;
-    } else if (currentCell[3] == 1 && direction == 'left') {
+    } else if (currentCell.left == true && direction == 'left') {
       return false;
     } else {
       return true;
     }
+  }
 
+  checkIfWon() {
+    if (this.state.posLeft == this.finish.posLeft && this.state.posTop == this.finish.posTop) {
+      alert('You won!');
+      this.setState({
+        posLeft: 0,
+        posTop: 0,
+        maze: newMaze(10,10)
+      })
+    }
   }
 
   render() {
     return(
       <div style={this.styles}>
-        <Maze maze={this.maze}/>
-        <Dot {...this.state} bgColor='#ff4848'/>
+        <Maze maze={this.state.maze}/>
+        <Dot {...this.finish}/>
+        <Dot {...this.state}/>
       </div>
     )
   }

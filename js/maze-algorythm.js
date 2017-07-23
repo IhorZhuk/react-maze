@@ -1,57 +1,88 @@
-window.newMaze = function(x, y) {
+window.newMaze = function(width = 8, height = width, closed = true) {
+  let maze = [];
+  let range = _.range(width);
 
-    // Establish variables and starting grid
-    var totalCells = x*y;
-    var cells = new Array();
-    var unvis = new Array();
-    for (var i = 0; i < y; i++) {
-        cells[i] = new Array();
-        unvis[i] = new Array();
-        for (var j = 0; j < x; j++) {
-            cells[i][j] = [0,0,0,0];
-            unvis[i][j] = true;
-        }
+  // Populate maze with empty cells:
+  for (let y = 0; y < height; y++) {
+    let row = range.map(x => {
+               return {
+                 x, y,
+                 top: closed || y > 0,
+                 left: closed || x > 0,
+                 bottom: closed || y < (height - 1),
+                 right: closed || x < (width - 1)
+               }
+             });
+    maze.push(row);
+  }
+
+  // All rows except last:
+  _.initial(maze).forEach((row, y) => { // TODO initial temp?
+    populateMissingSets(row);
+    mergeRandomSetsIn(row);
+    addSetExits(row, maze[y + 1]);
+  });
+
+  let lastRow = _.last(maze);
+  populateMissingSets(lastRow);
+  mergeRandomSetsIn(lastRow, 1);
+
+  return maze;
+}
+
+function mergeSetWith(row, oldSet, newSet) {
+  let setToMerge = _.filter(row, { set: oldSet });
+  setToMerge.forEach(box => {
+    box.set = newSet;
+  });
+}
+
+function populateMissingSets(row) {
+  let noSets = _.reject(row, box => box.set);
+  let setsInUse = _.chain(row)
+                   .map('set')
+                   .uniq()
+                   .compact()
+                   .value();
+  let allSets = _.range(1, row.length + 1);
+  let availableSets = _.chain(allSets)
+                       .difference(setsInUse)
+                       .shuffle()
+                       .value();
+  noSets.forEach((box, i) => box.set = availableSets[i]);
+}
+
+function mergeRandomSetsIn(row, probability = 0.5) {
+  // Randomly merge some disjoint sets
+  let allBoxesButLast = _.initial(row);
+  allBoxesButLast.forEach((current, x) => {
+    let next = row[x + 1];
+    let differentSets = current.set != next.set;
+    let shouldMerge = Math.random() <= probability;
+    if (differentSets && shouldMerge) {
+      mergeSetWith(row, next.set, current.set);
+      current.right = false;
+      next.left = false;
     }
-    
-    // Set a random position to start from
-    var currentCell = [Math.floor(Math.random()*y), Math.floor(Math.random()*x)];
-    var path = [currentCell];
-    unvis[currentCell[0]][currentCell[1]] = false;
-    var visited = 1;
-    
-    // Loop through all available cell positions
-    while (visited < totalCells) {
-        // Determine neighboring cells
-        var pot = [[currentCell[0]-1, currentCell[1], 0, 2],
-                [currentCell[0], currentCell[1]+1, 1, 3],
-                [currentCell[0]+1, currentCell[1], 2, 0],
-                [currentCell[0], currentCell[1]-1, 3, 1]];
-        var neighbors = new Array();
-        
-        // Determine if each neighboring cell is in game grid, and whether it has already been checked
-        for (var l = 0; l < 4; l++) {
-            if (pot[l][0] > -1 && pot[l][0] < y && pot[l][1] > -1 && pot[l][1] < x && unvis[pot[l][0]][pot[l][1]]) { neighbors.push(pot[l]); }
-        }
-        
-        // If at least one active neighboring cell has been found
-        if (neighbors.length) {
-            // Choose one of the neighbors at random
-            var next = neighbors[Math.floor(Math.random()*neighbors.length)];
-            
-            // Remove the wall between the current cell and the chosen neighboring cell
-            cells[currentCell[0]][currentCell[1]][next[2]] = 1;
-            cells[next[0]][next[1]][next[3]] = 1;
-            
-            // Mark the neighbor as visited, and set it as the current cell
-            unvis[next[0]][next[1]] = false;
-            visited++;
-            currentCell = [next[0], next[1]];
-            path.push(currentCell);
-        }
-        // Otherwise go back up a step and keep going
-        else {
-            currentCell = path.pop();
-        }
-    }
-    return cells;
+  });
+}
+
+function addSetExits(row, nextRow) {
+  // Randomly add bottom exit for each set
+  let setsInRow = _.chain(row)
+                   .groupBy('set')
+                   .values()
+                   .value();
+  let { ceil, random } = Math;
+  setsInRow.forEach(set => {
+    let exits = _.sampleSize(set, ceil(random() * set.length));
+    exits.forEach(exit => {
+      if (exit) {
+        let below = nextRow[exit.x];
+        exit.bottom = false;
+        below.top = false;
+        below.set = exit.set;
+      }
+    });
+  });
 }
