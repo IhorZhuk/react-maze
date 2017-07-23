@@ -81,7 +81,7 @@ class Labyrinth extends React.Component {
       return false;
     } else if (currentCell[2] == 1 && direction == 'bottom') {
       return false;
-    } else if (currentCell[3] == 1 && direction == 'right') {
+    } else if (currentCell[3] == 1 && direction == 'left') {
       return false;
     } else {
       return true;
