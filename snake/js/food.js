@@ -1,7 +1,7 @@
-const SnakeDot = ({posLeft, posTop}) => {
+const Food = ({foodPos}) => {
 
-  let left = posLeft + '%';
-  let top = posTop + '%';
+  let left = foodPos[0] + '%';
+  let top = foodPos[1] + '%';
 
   let styles = {
     position: 'absolute',
@@ -9,11 +9,11 @@ const SnakeDot = ({posLeft, posTop}) => {
     left: left,
     width: '2%',
     height: '2%',
-    backgroundColor: 'black',
+    backgroundColor: 'red',
     border: '1px solid #fff',
-    zIndex: 2
+    zIndex: 1
   }
-  
+
   return(
     <div style={styles}></div>
   )
