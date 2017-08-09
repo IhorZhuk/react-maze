@@ -8,41 +8,30 @@ class Snake extends React.Component {
     );
   }
 
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
   moveSnake() {
     this.dots = [...this.props.snakeDots];
+    let head = this.dots[this.dots.length - 1];
     switch (this.props.direction) {
       case 'RIGHT':
-        this.moveSnakeRight()
+        head = [head[0] + 2, head[1]];
         break;
       case 'LEFT':
-        this.moveSnakeLeft()
+        head = [head[0] - 2, head[1]];
         break;
       case 'DOWN':
-        this.moveSnakeDown()
+        head = [head[0], head[1] + 2];
         break;
       case 'UP':
-        this.moveSnakeUp()
+        head = [head[0], head[1] - 2];
         break;
     }
+    this.dots.push(head)
+    this.dots.shift();
     this.props.updateState('snakeDots', [...this.dots])
-  }
-
-  moveSnakeRight() {
-    this.dots.map(dot => {
-      dot[0] = dot[0] + 1;
-    });
-  }
-
-  moveSnakeLeft() {
-    this.dots.map(dot => {
-      dot[0] = dot[0] - 1;
-    });
-  }
-
-  moveSnakeDown() {
-     this.dots.map(dot => {
-      dot[1] = dot[1] + 1;
-    });
   }
 
   moveSnakeUp() {
