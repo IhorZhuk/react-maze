@@ -14,9 +14,10 @@ class SnakeGame extends React.Component {
 
     this.state = {
       direction: 'RIGHT',
+      speed: 200,
       food: this.getRandomCoordinates(),
       snakeDots: [
-        [0,0], [2,0], [4,0]
+        [0,0]
       ]
     };
 
@@ -49,8 +50,17 @@ class SnakeGame extends React.Component {
     let food = this.state.food;
     if (head[0] == food[0] && head[1] == food[1]) {
       this.enlargeSnake();
+      this.increaseSpeed()
       this.setState({
-        food: this.getRandomCoordinates()
+        food: this.getRandomCoordinates(),
+      })
+    }
+  }
+
+  increaseSpeed() {
+    if (this.state.speed > 10) {
+      this.setState({
+        speed: this.state.speed - 10
       })
     }
   }
@@ -73,7 +83,6 @@ class SnakeGame extends React.Component {
         break;
     }
     newSnake.push(head)
-    console.log(newSnake)
     this.setState({
       snakeDots: newSnake
     })
@@ -82,6 +91,7 @@ class SnakeGame extends React.Component {
   restartGame() {
     this.setState({
       direction: 'RIGHT',
+      speed: 200,
       food: this.getRandomCoordinates(),
       snakeDots: [
         [0,0]

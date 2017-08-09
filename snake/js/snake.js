@@ -2,14 +2,19 @@ class Snake extends React.Component {
 
   componentDidMount() {
     document.onkeydown = this.checkKey.bind(this);
-    this.timerID = setInterval(
-      () => this.moveSnake(),
-      200
-    );
+    this.setTimer()
   }
 
-  componentWillUnmount() {
+  componentWillUpdate() {
     clearInterval(this.timerID);
+    this.setTimer()
+  }
+
+  setTimer() {
+    this.timerID = setInterval(
+      () => this.moveSnake(),
+      this.props.speed
+    );
   }
 
   moveSnake() {
