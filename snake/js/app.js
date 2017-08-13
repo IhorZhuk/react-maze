@@ -25,7 +25,8 @@ class SnakeGame extends React.Component {
   }
 
   componentDidUpdate() {
-    this.checkIfGameOver()
+    this.checkIfOutOfBorders()
+    this.checkIfCollapsed()
     this.checkIfEat()
   }
 
@@ -37,12 +38,25 @@ class SnakeGame extends React.Component {
     return [x,y]
   }
 
-  checkIfGameOver() {
+  checkIfOutOfBorders() {
     let head = this.state.snakeDots[this.state.snakeDots.length - 1];
     if (head[0] >= 100 || head[1] >= 100 || head[0] < 0 || head[1] < 0) {
       alert('Game Over');
       this.restartGame()
     }
+  }
+
+  checkIfCollapsed() {
+    var snake = [...this.state.snakeDots],
+        head = snake[snake.length - 1];
+    snake.pop();
+    snake.map(function(dot) {
+      let snake = snake;
+      if (head[0] == dot[0] && head[1] == dot[1]) {
+        alert('Game Over');
+        this.restartGame()
+      }
+    });
   }
 
   checkIfEat() {
@@ -58,7 +72,7 @@ class SnakeGame extends React.Component {
   }
 
   increaseSpeed() {
-    if (this.state.speed > 10) {
+    if (this.state.speed > 30) {
       this.setState({
         speed: this.state.speed - 10
       })
@@ -67,22 +81,7 @@ class SnakeGame extends React.Component {
 
   enlargeSnake() {
     let newSnake = [...this.state.snakeDots];
-    let head = newSnake[newSnake.length - 1];
-    switch (this.props.direction) {
-      case 'RIGHT':
-        head = [head[0] + 4, head[1]]
-        break;
-      case 'LEFT':
-        head = [head[0] - 4, head[1]]
-        break;
-      case 'DOWN':
-        head = [head[0], head[1] + 4]
-        break;
-      case 'UP':
-        head = [head[0], head[1] - 4]
-        break;
-    }
-    newSnake.push(head)
+    newSnake.unshift([])
     this.setState({
       snakeDots: newSnake
     })
