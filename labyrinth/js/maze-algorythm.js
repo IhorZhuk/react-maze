@@ -1,3 +1,5 @@
+// https://www.npmjs.com/package/generate-maze
+
 window.newMaze = function(width = 8, height = width, closed = true) {
   let maze = [];
   let range = _.range(width);
